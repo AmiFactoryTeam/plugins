@@ -241,8 +241,26 @@ static const int SOURCE_GALLERY = 1;
     return;
   }
   if (videoURL != nil) {
-    self.result(videoURL.path);
-    self.result = nil;
+    // Check if the video file located under 'PluginKitPlugin' directory.
+    // If yes - copy if to the app tmp directory (same as image file)
+    NSArray<NSString*> *components = videoURL.pathComponents;
+    if ([components containsObject:@"PluginKitPlugin"]) {
+      NSError *error;
+      NSString *videoFileCopyPath = [self copyFile:videoURL error:&error];
+      if (error == NULL) {
+        self.result(videoFileCopyPath);
+        self.result = nil;
+      }
+      else {
+          self.result([FlutterError errorWithCode:@"video_access_denied"
+                        message:@"Fail to copy video file to the app tmp directory"
+                        details:nil]);
+      }
+    }
+    else {
+      self.result(videoURL.path);
+      self.result = nil;
+    }
   } else {
     UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
     if (image == nil) {
@@ -328,6 +346,29 @@ static const int SOURCE_GALLERY = 1;
                                     details:nil]);
   }
   self.result = nil;
+}
+
+- (NSString *)temporaryFilePath:(NSString *)suffix {
+      NSString *fileExtension = [NSString stringWithFormat: @"image_picker_%@", suffix];
+      NSString *tmpDirectory = NSTemporaryDirectory();
+      NSString *tmpPath = [tmpDirectory stringByAppendingPathComponent:fileExtension];
+      return tmpPath;
+}
+
+- (NSString *)copyFile:(NSURL *)fileUrl error:(NSError **)error {
+    NSArray<NSString*> *components = fileUrl.pathComponents;
+    NSString *fileName = components.lastObject;
+    NSString *destination = [self temporaryFilePath:fileName];
+    
+    if (![[NSFileManager defaultManager] isReadableFileAtPath:fileUrl.path]) {
+        return NULL;
+    }
+    
+    [[NSFileManager defaultManager] copyItemAtURL:fileUrl toURL:[NSURL fileURLWithPath:destination] error:error];
+    if (*error != NULL) {
+        return NULL;
+    }
+    return destination;
 }
 
 @end

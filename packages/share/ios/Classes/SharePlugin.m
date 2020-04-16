@@ -4,6 +4,9 @@
 
 #import "SharePlugin.h"
 
+@import Foundation;
+@import LinkPresentation;
+
 static NSString *const PLATFORM_CHANNEL = @"plugins.flutter.io/share";
 
 @interface ShareData : NSObject <UIActivityItemSource>
@@ -45,6 +48,19 @@ static NSString *const PLATFORM_CHANNEL = @"plugins.flutter.io/share";
 - (NSString *)activityViewController:(UIActivityViewController *)activityViewController
               subjectForActivityType:(UIActivityType)activityType {
   return [_subject isKindOfClass:NSNull.class] ? @"" : _subject;
+}
+
+- (LPLinkMetadata *)activityViewControllerLinkMetadata:(UIActivityViewController *)activityViewController API_AVAILABLE(ios(13.0)) {
+  NSURL *url = [NSURL URLWithString: _text];
+  if ([url isKindOfClass:NSNull.class]) {
+    LPLinkMetadata* metadata = [LPLinkMetadata init];
+    metadata.originalURL = url;
+    metadata.URL = metadata.originalURL;
+    metadata.title = _subject;
+    return metadata;
+  } else {
+    return nil;
+  }
 }
 
 @end

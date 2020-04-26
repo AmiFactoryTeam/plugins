@@ -73,9 +73,20 @@ static FlutterError *getFlutterError(NSError *error) {
     } else if ([signInOption isEqualToString:@"SignInOption.authCode"]) {
       NSString *serverClientID = call.arguments[@"serverClientId"];
       NSArray *scopes = call.arguments[@"scopes"];
-      [GIDSignIn sharedInstance].serverClientID = serverClientID;
-      [GIDSignIn sharedInstance].scopes = scopes;
-      result(nil);
+
+      NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
+                                                       ofType:@"plist"];
+      if (path) {
+        NSMutableDictionary *plist = [[NSMutableDictionary alloc] initWithContentsOfFile:path];
+        [GIDSignIn sharedInstance].clientID = plist[kClientIdKey];
+        [GIDSignIn sharedInstance].serverClientID = serverClientID;
+        [GIDSignIn sharedInstance].scopes = scopes;
+        result(nil);
+      } else {
+        result([FlutterError errorWithCode:@"missing-config"
+                                   message:@"GoogleService-Info.plist file not found"
+                                   details:nil]);
+      }
     } else {
       NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
                                                        ofType:@"plist"];
@@ -115,6 +126,7 @@ static FlutterError *getFlutterError(NSError *error) {
       result(error != nil ? getFlutterError(error) : @{
         @"idToken" : authentication.idToken,
         @"accessToken" : authentication.accessToken,
+        @"authCode": currentUser.serverAuthCode,
       });
     }];
   } else if ([call.method isEqualToString:@"signOut"]) {

@@ -322,11 +322,14 @@ public class GoogleSignInPlugin implements MethodCallHandler, FlutterPlugin, Act
           case DEFAULT_AUTH_CODE:
             optionsBuilder =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                  .requestServerAuthCode(serverClientId);
+                  .requestServerAuthCode(serverClientId)
+                  .requestEmail();
             break;
           case DEFAULT_SIGN_IN:
             optionsBuilder = 
-                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN);
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                  .requestEmail();
+            break;
           default:
             throw new IllegalStateException("Unknown signInOption");
         }
@@ -339,7 +342,7 @@ public class GoogleSignInPlugin implements MethodCallHandler, FlutterPlugin, Act
             context
                 .getResources()
                 .getIdentifier("default_web_client_id", "string", context.getPackageName());
-        if (clientIdIdentifier != 0 && serverClientId == null) {
+        if (clientIdIdentifier != 0) {
           optionsBuilder.requestIdToken(context.getString(clientIdIdentifier));
         }
         for (String scope : requestedScopes) {
@@ -595,8 +598,10 @@ public class GoogleSignInPlugin implements MethodCallHandler, FlutterPlugin, Act
             public void run(Future<String> tokenFuture) {
               try {
                 String token = tokenFuture.get();
+                GoogleSignInAccount account = googleSignInWrapper.getLastSignedInAccount(context);
                 HashMap<String, String> tokenResult = new HashMap<>();
                 tokenResult.put("accessToken", token);
+                tokenResult.put("authCode", account.getServerAuthCode());
                 result.success(tokenResult);
               } catch (ExecutionException e) {
                 if (e.getCause() instanceof UserRecoverableAuthException) {

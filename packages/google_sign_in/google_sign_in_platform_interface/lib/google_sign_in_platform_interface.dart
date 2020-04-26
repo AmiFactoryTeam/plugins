@@ -82,7 +82,8 @@ abstract class GoogleSignInPlatform {
       {@required String hostedDomain,
       List<String> scopes,
       SignInOption signInOption,
-      String clientId}) async {
+      String clientId,
+      String serverClientId}) async {
     throw UnimplementedError('init() has not been implemented.');
   }
 

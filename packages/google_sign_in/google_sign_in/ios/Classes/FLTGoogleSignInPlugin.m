@@ -70,6 +70,12 @@ static FlutterError *getFlutterError(NSError *error) {
       result([FlutterError errorWithCode:@"unsupported-options"
                                  message:@"Games sign in is not supported on iOS"
                                  details:nil]);
+    } else if ([signInOption isEqualToString:@"SignInOption.authCode"]) {
+      NSString *serverClientID = call.arguments[@"serverClientId"];
+      NSArray *scopes = call.arguments[@"scopes"];
+      [GIDSignIn sharedInstance].serverClientID = serverClientID;
+      [GIDSignIn sharedInstance].scopes = scopes;
+      result(nil);
     } else {
       NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
                                                        ofType:@"plist"];

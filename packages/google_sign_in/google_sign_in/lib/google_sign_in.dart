@@ -27,6 +27,8 @@ class GoogleSignInAuthentication {
   /// The OAuth2 access token to access Google services.
   String get accessToken => _data.accessToken;
 
+  String get authCode => _data.authCode;
+
   @override
   String toString() => 'GoogleSignInAuthentication:$_data';
 }
@@ -166,6 +168,7 @@ class GoogleSignIn {
     this.scopes = const <String>[],
     this.hostedDomain,
     this.clientId,
+    this.serverClientId,
   });
 
   /// Factory for creating default sign in user experience.
@@ -177,6 +180,17 @@ class GoogleSignIn {
         signInOption: SignInOption.standard,
         scopes: scopes,
         hostedDomain: hostedDomain);
+  }
+
+  /// Factory for creating default sign in user experience with Server-Side access.
+  factory GoogleSignIn.authCode({
+    List<String> scopes = const <String>[],
+    String serverClientId,
+  }) {
+    return GoogleSignIn(
+        signInOption: SignInOption.authCode,
+        scopes: scopes,
+        serverClientId: serverClientId);
   }
 
   /// Factory for creating sign in suitable for games. This option is only
@@ -214,6 +228,9 @@ class GoogleSignIn {
   /// Client ID being used to connect to google sign-in. Only supported on web.
   final String clientId;
 
+  /// Server Client ID being used to connect to google sign-in. Only supported on server-side enable access.
+  final String serverClientId;
+
   StreamController<GoogleSignInAccount> _currentUserController =
       StreamController<GoogleSignInAccount>.broadcast();
 
@@ -248,6 +265,7 @@ class GoogleSignIn {
       scopes: scopes,
       hostedDomain: hostedDomain,
       clientId: clientId,
+      serverClientId: serverClientId,
     )..catchError((dynamic _) {
         // Invalidate initialization if it errors out.
         _initialization = null;

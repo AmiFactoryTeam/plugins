@@ -16,7 +16,12 @@ flutter:
         default_package: google_sign_in_web
 
 dependencies:
-  google_sign_in_platform_interface: ^1.1.0
+  # google_sign_in_platform_interface: ^1.1.0
+  google_sign_in_platform_interface:
+    git:
+      url: git://github.com/AmiFactoryTeam/plugins.git
+      path: packages/google_sign_in
+      ref: google_sign_in/server-access
   flutter:
     sdk: flutter
   meta: ^1.0.4

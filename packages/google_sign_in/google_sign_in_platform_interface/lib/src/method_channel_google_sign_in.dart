@@ -24,11 +24,13 @@ class MethodChannelGoogleSignIn extends GoogleSignInPlatform {
       {@required String hostedDomain,
       List<String> scopes = const <String>[],
       SignInOption signInOption = SignInOption.standard,
-      String clientId}) {
+      String clientId,
+      String serverClientId}) {
     return channel.invokeMethod<void>('init', <String, dynamic>{
       'signInOption': signInOption.toString(),
       'scopes': scopes,
       'hostedDomain': hostedDomain,
+      'serverClientId': serverClientId,
     });
   }
 

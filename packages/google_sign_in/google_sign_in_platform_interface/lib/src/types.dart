@@ -13,6 +13,11 @@ enum SignInOption {
   /// See also https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSignInOptions.html#DEFAULT_SIGN_IN.
   standard,
 
+  /// Server-side auth configuration. Provides auth code which server can use to access Google APIs.
+  ///
+  /// See also https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSignInOptions.html#DEFAULT_SIGN_IN.
+  authCode,
+
   /// Recommended configuration for Games sign in.
   ///
   /// This is currently only supported on Android and will throw an error if used
@@ -82,7 +87,7 @@ class GoogleSignInUserData {
 /// Holds authentication data after sign in.
 class GoogleSignInTokenData {
   /// Either or both parameters may be null.
-  GoogleSignInTokenData({this.idToken, this.accessToken});
+  GoogleSignInTokenData({this.idToken, this.accessToken, this.authCode});
 
   /// An OpenID Connect ID token for the authenticated user.
   String idToken;
@@ -90,8 +95,11 @@ class GoogleSignInTokenData {
   /// The OAuth2 access token used to access Google services.
   String accessToken;
 
+  /// The OAuth2 auth code which can be used by server to exchange to access and refresh token.
+  String authCode;
+
   @override
-  int get hashCode => hash2(idToken, accessToken);
+  int get hashCode => hash3(idToken, accessToken, authCode);
 
   @override
   bool operator ==(dynamic other) {
@@ -99,6 +107,7 @@ class GoogleSignInTokenData {
     if (other is! GoogleSignInTokenData) return false;
     final GoogleSignInTokenData otherTokenData = other;
     return otherTokenData.idToken == idToken &&
-        otherTokenData.accessToken == accessToken;
+        otherTokenData.accessToken == accessToken &&
+        otherTokenData.authCode == authCode;
   }
 }

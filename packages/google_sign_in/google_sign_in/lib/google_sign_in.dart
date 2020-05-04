@@ -378,8 +378,13 @@ class GoogleSignIn {
   }
 
   /// Marks current user as being in the signed out state.
-  Future<GoogleSignInAccount> signOut() =>
-      _addMethodCall(GoogleSignInPlatform.instance.signOut);
+  Future<GoogleSignInAccount> signOut() {
+    return _addMethodCall(GoogleSignInPlatform.instance.signOut)
+      .then((account) {
+        _initialization = null;
+        return account;
+      });
+  }
 
   /// Disconnects the current user from the app and revokes previous
   /// authentication.
